@@ -18,10 +18,14 @@ class ConversionPresenter: ConversionPresentationLogic {
     
     func presentConversion(response: Conversion.PerformConversion.Response) {
         let formatted = response.convertedAmount.map { String(format: "%.2f", $0) } ?? "0.00"
+        
+        let currencyCode = response.toCurrencyCode
+        
         let viewModel = Conversion.PerformConversion.ViewModel(
-            convertedText: "\(formatted) \(response.rates?.source ?? "USD")",
+            convertedText: "\(formatted) \(currencyCode)",
             errorMessage: response.error?.localizedDescription
         )
+        
         viewController?.displayConversion(viewModel: viewModel)
     }
 }

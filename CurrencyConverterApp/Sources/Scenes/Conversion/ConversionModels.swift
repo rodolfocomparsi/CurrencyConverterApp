@@ -26,6 +26,7 @@ enum Conversion {
             let convertedAmount: Double?
             let rates: ExchangeRates?
             let error: Error?
+            let toCurrencyCode: String
         }
         
         struct ViewModel {

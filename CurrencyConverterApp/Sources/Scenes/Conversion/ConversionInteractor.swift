@@ -34,7 +34,7 @@ class ConversionInteractor: ConversionBusinessLogic, ConversionDataStore {
     
     func performConversion(request: Conversion.PerformConversion.Request) {
         guard let rates = liveRates else {
-            let response = Conversion.PerformConversion.Response(convertedAmount: nil, rates: nil, error: NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Taxas não carregadas"]))
+            let response = Conversion.PerformConversion.Response(convertedAmount: nil, rates: nil, error: NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Taxas não carregadas"]), toCurrencyCode: request.toCurrency.code)
             presenter?.presentConversion(response: response)
             return
         }
@@ -44,14 +44,14 @@ class ConversionInteractor: ConversionBusinessLogic, ConversionDataStore {
         
         guard let usdFrom = rates.quotes["USD\(fromCode)"] ?? (fromCode == "USD" ? 1.0 : nil),
               let usdTo = rates.quotes["USD\(toCode)"] ?? (toCode == "USD" ? 1.0 : nil) else {
-            let response = Conversion.PerformConversion.Response(convertedAmount: nil, rates: rates, error: NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Moeda não suportada"]))
+            let response = Conversion.PerformConversion.Response(convertedAmount: nil, rates: rates, error: NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Moeda não suportada"]), toCurrencyCode: request.toCurrency.code)
             presenter?.presentConversion(response: response)
             return
         }
         
         let converted = request.amount / usdFrom * usdTo
         
-        let response = Conversion.PerformConversion.Response(convertedAmount: converted, rates: rates, error: nil)
+        let response = Conversion.PerformConversion.Response(convertedAmount: converted, rates: rates, error: nil, toCurrencyCode: request.toCurrency.code)
         presenter?.presentConversion(response: response)
     }
 }
