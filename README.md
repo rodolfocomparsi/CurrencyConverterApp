@@ -14,11 +14,11 @@ Consumo da API **CurrencyLayer**  com taxas referenciadas ao USD.
 - Tratamento completo de erros e estados (loading, error, offline)
 
 **Opcionais implementadas**
-- [ ] Busca na lista de moedas
+- [✅] Busca na lista de moedas
 - [ ] Persistência offline das moedas e taxas
-- [ ] Favoritos
+- [✅] Favoritos
 - [ ] Testes unitários
-- [ ] Arquitetura VIP (Clean Swift)
+- [✅] Arquitetura VIP (Clean Swift)
 
 ## Arquitetura
 Aplicativo estruturado com **VIP (Clean Swift)** 
