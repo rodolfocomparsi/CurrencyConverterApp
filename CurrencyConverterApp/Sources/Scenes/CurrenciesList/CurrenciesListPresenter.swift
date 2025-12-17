@@ -9,7 +9,27 @@ class CurrenciesListPresenter: CurrenciesListPresentationLogic {
     weak var viewController: CurrenciesListDisplayLogic?
     
     func presentCurrencies(response: CurrenciesList.FetchCurrencies.Response) {
-        let displayed = response.currencies.map {
+        if let error = response.error {
+            let viewModel = CurrenciesList.FetchCurrencies.ViewModel(
+                displayedCurrencies: [],
+                errorMessage: error.localizedDescription
+            )
+            viewController?.displayCurrencies(viewModel: viewModel)
+            return
+        }
+        
+        guard let currencies = response.currencies else {
+            let viewModel = CurrenciesList.FetchCurrencies.ViewModel(
+                displayedCurrencies: [],
+                errorMessage: "Nenhuma moeda carregada"
+            )
+            viewController?.displayCurrencies(viewModel: viewModel)
+            return
+        }
+        
+        let sorted = FavoritesManager.shared.sortedCurrencies(currencies)
+        
+        let displayed = sorted.map {
             CurrenciesList.FetchCurrencies.ViewModel.DisplayedCurrency(
                 code: $0.code,
                 name: $0.name,
@@ -17,12 +37,9 @@ class CurrenciesListPresenter: CurrenciesListPresentationLogic {
             )
         }
         
-        let errorMessage = response.error?.localizedDescription ??
-                           (response.currencies.isEmpty ? "Nenhuma moeda encontrada." : nil)
-        
         let viewModel = CurrenciesList.FetchCurrencies.ViewModel(
             displayedCurrencies: displayed,
-            errorMessage: errorMessage
+            errorMessage: nil
         )
         
         viewController?.displayCurrencies(viewModel: viewModel)

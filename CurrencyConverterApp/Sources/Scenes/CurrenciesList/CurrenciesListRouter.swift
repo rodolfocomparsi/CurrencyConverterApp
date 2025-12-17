@@ -13,7 +13,6 @@ class CurrenciesListRouter: CurrenciesListRoutingLogic, CurrenciesListDataPassin
     weak var viewController: CurrenciesListViewController?
     var dataStore: CurrenciesListDataStore?
     
-    // Configura o closure para passar moeda de volta (usado na tela de conversão)
     func configureCurrencySelectionCallback(_ callback: @escaping (Currency) -> Void) {
         viewController?.onCurrencySelected = { [weak dataStore] currency in
             dataStore?.selectedCurrency = currency

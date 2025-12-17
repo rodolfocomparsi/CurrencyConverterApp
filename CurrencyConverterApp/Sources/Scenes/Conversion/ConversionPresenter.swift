@@ -17,12 +17,16 @@ class ConversionPresenter: ConversionPresentationLogic {
     }
     
     func presentConversion(response: Conversion.PerformConversion.Response) {
-        let formatted = response.convertedAmount.map { String(format: "%.2f", $0) } ?? "0.00"
-        
-        let currencyCode = response.toCurrencyCode
-        
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.locale = Locale(identifier: "pt_BR")
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+
+        let formatted = response.convertedAmount.map { formatter.string(from: NSNumber(value: $0)) ?? "0,00" } ?? "0,00"
+
         let viewModel = Conversion.PerformConversion.ViewModel(
-            convertedText: "\(formatted) \(currencyCode)",
+            convertedText: formatted,
             errorMessage: response.error?.localizedDescription
         )
         

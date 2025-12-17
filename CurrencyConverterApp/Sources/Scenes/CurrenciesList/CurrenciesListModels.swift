@@ -4,11 +4,10 @@ enum CurrenciesList {
     
     // MARK: - Fetch Currencies
     enum FetchCurrencies {
-        struct Request {
-        }
+        struct Request { }
         
         struct Response {
-            let currencies: [Currency]
+            let currencies: [Currency]?
             let error: Error?
         }
         
@@ -24,10 +23,10 @@ enum CurrenciesList {
         }
     }
     
-    // MARK: - Select Currency
-    enum SelectCurrency {
+    // MARK: - Toggle Favorite
+    enum ToggleFavorite {
         struct Request {
-            let selectedCurrency: Currency
+            let currencyCode: String
         }
     }
 }

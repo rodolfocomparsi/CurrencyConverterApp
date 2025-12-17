@@ -13,8 +13,8 @@ class CurrenciesListViewController: UIViewController, CurrenciesListDisplayLogic
     
     private let tableView = UITableView()
     private let activityIndicator = UIActivityIndicatorView(style: .large)
+    private let searchController = UISearchController(searchResultsController: nil)
     
-    // Closure para passar a moeda selecionada de volta (usaremos no router)
     var onCurrencySelected: ((Currency) -> Void)?
     
     override func viewDidLoad() {
@@ -28,7 +28,14 @@ class CurrenciesListViewController: UIViewController, CurrenciesListDisplayLogic
         title = "Selecione uma Moeda"
         view.backgroundColor = .systemBackground
         
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "CurrencyCell")
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Buscar por código ou nome"
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
+        
+       tableView.register(UITableViewCell.self, forCellReuseIdentifier: "CurrencyCell")
         tableView.delegate = self
         tableView.dataSource = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -48,6 +55,7 @@ class CurrenciesListViewController: UIViewController, CurrenciesListDisplayLogic
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
+    
     
     private func setupVIP() {
         let presenter = CurrenciesListPresenter()
@@ -98,9 +106,44 @@ extension CurrenciesListViewController: UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CurrencyCell", for: indexPath)
         let displayed = displayedCurrencies[indexPath.row]
+        
         cell.textLabel?.text = displayed.displayText
         cell.accessoryType = .disclosureIndicator
+        
+        if FavoritesManager.shared.isFavorite(displayed.code) {
+            cell.textLabel?.font = .boldSystemFont(ofSize: 17)
+            cell.textLabel?.textColor = .systemBlue
+        } else {
+            cell.textLabel?.font = .systemFont(ofSize: 17)
+            cell.textLabel?.textColor = .label
+        }
+        
         return cell
+    }
+
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let displayed = displayedCurrencies[indexPath.row]
+        let isFavorite = FavoritesManager.shared.isFavorite(displayed.code)
+        
+        let action = UIContextualAction(style: .normal, title: nil) { [weak self] _, _, completion in
+            let request = CurrenciesList.ToggleFavorite.Request(currencyCode: displayed.code)
+            self?.interactor?.toggleFavorite(request: request)
+            completion(true)
+        }
+        
+        action.image = UIImage(systemName: isFavorite ? "star.slash.fill" : "star.fill")
+        action.backgroundColor = .systemBlue
+        
+        return UISwipeActionsConfiguration(actions: [action])
+    }
+    
+    @objc private func toggleFavorite(_ sender: UIButton) {
+        guard let cell = sender.superview?.superview as? UITableViewCell,
+              let indexPath = tableView.indexPath(for: cell) else { return }
+        
+        let displayed = displayedCurrencies[indexPath.row]
+        let request = CurrenciesList.ToggleFavorite.Request(currencyCode: displayed.code)
+        interactor?.toggleFavorite(request: request)
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -108,10 +151,27 @@ extension CurrenciesListViewController: UITableViewDelegate, UITableViewDataSour
         let displayed = displayedCurrencies[indexPath.row]
         let selectedCurrency = Currency(code: displayed.code, name: displayed.name)
         
-        // Notifica via closure (configuraremos no router)
         onCurrencySelected?(selectedCurrency)
         
-        // Ou usa router se preferir navigation controller
         navigationController?.popViewController(animated: true)
+    }
+}
+
+extension CurrenciesListViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        let searchText = searchController.searchBar.text?.lowercased() ?? ""
+        
+        if searchText.isEmpty {
+            fetchCurrencies()
+            return
+        }
+        
+        let filtered = displayedCurrencies.filter { displayed in
+            displayed.code.lowercased().contains(searchText) ||
+            displayed.name.lowercased().contains(searchText)
+        }
+        
+        displayedCurrencies = filtered
+        tableView.reloadData()
     }
 }
