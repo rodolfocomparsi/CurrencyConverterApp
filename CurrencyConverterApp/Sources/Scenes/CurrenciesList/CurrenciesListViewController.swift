@@ -35,7 +35,7 @@ class CurrenciesListViewController: UIViewController, CurrenciesListDisplayLogic
         navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
         
-       tableView.register(UITableViewCell.self, forCellReuseIdentifier: "CurrencyCell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "CurrencyCell")
         tableView.delegate = self
         tableView.dataSource = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -44,6 +44,10 @@ class CurrenciesListViewController: UIViewController, CurrenciesListDisplayLogic
         activityIndicator.hidesWhenStopped = true
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(activityIndicator)
+        
+        let helpButton = UIBarButtonItem(image: UIImage(systemName: "questionmark.circle"), style: .plain, target: self, action: #selector(showFavoritesHelp))
+        helpButton.tintColor = .systemBlue
+        navigationItem.rightBarButtonItem = helpButton
         
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -120,7 +124,7 @@ extension CurrenciesListViewController: UITableViewDelegate, UITableViewDataSour
         
         return cell
     }
-
+    
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let displayed = displayedCurrencies[indexPath.row]
         let isFavorite = FavoritesManager.shared.isFavorite(displayed.code)
@@ -129,6 +133,8 @@ extension CurrenciesListViewController: UITableViewDelegate, UITableViewDataSour
             let request = CurrenciesList.ToggleFavorite.Request(currencyCode: displayed.code)
             self?.interactor?.toggleFavorite(request: request)
             completion(true)
+            
+            tableView.reloadRows(at: [indexPath], with: .automatic)
         }
         
         action.image = UIImage(systemName: isFavorite ? "star.slash.fill" : "star.fill")
@@ -154,6 +160,16 @@ extension CurrenciesListViewController: UITableViewDelegate, UITableViewDataSour
         onCurrencySelected?(selectedCurrency)
         
         navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func showFavoritesHelp() {
+        let alert = UIAlertController(
+            title: "Dica de Favoritos ⭐",
+            message: "Para favoritar uma moeda, arraste a linha para a esquerda.\nOs favoritos aparecem sempre no topo da lista!",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Entendi", style: .default))
+        present(alert, animated: true)
     }
 }
 
