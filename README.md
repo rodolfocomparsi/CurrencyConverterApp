@@ -8,7 +8,7 @@ Consumo da API **CurrencyLayer**
 
 | Tela de Conversão                          | Tela de Listagem de Moedas                     | Favoritos e Busca                              |
 |--------------------------------------------|------------------------------------------------|------------------------------------------------|
-| ![Conversão](Resources/Screenshots/conversion.png) | ![Listagem](Resources/Screenshots/list.png)    | ![Favoritos](Resources/Screenshots/favorites.png) |
+| ![Conversão](CurrencyConverterApp/Resources/Screenshots/conversion.png) | ![Listagem](CurrencyConverterApp/Resources/Screenshots/list.png)    | ![Favoritos](CurrencyConverterApp/Resources/Screenshots/favorites.png) |
 
 ## Funcionalidades Implementadas
 
