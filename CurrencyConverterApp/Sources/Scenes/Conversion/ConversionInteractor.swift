@@ -19,15 +19,24 @@ class ConversionInteractor: ConversionBusinessLogic, ConversionDataStore {
     var selectedCurrencyType: Conversion.CurrencySelection?
     
     func fetchLiveRates(request: Conversion.FetchRates.Request) {
+        if let cachedRates = CacheManager.shared.loadValidRates() {
+            liveRates = cachedRates
+            let response = Conversion.FetchRates.Response(rates: cachedRates, error: nil)
+            presenter?.presentFetchedRates(response: response)
+        }
+        
         worker.fetchLiveRates { result in
             switch result {
             case .success(let rates):
+                CacheManager.shared.saveRates(rates)
                 self.liveRates = rates
                 let response = Conversion.FetchRates.Response(rates: rates, error: nil)
                 self.presenter?.presentFetchedRates(response: response)
             case .failure(let error):
-                let response = Conversion.FetchRates.Response(rates: nil, error: error)
-                self.presenter?.presentFetchedRates(response: response)
+                if CacheManager.shared.loadValidRates() == nil {
+                    let response = Conversion.FetchRates.Response(rates: nil, error: error)
+                    self.presenter?.presentFetchedRates(response: response)
+                }
             }
         }
     }

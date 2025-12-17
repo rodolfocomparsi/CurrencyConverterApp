@@ -1,6 +1,6 @@
 import Foundation
 
-struct Currency {
+struct Currency: Encodable, Decodable {
     let code: String
     let name: String
     
@@ -9,7 +9,7 @@ struct Currency {
     }
 }
 
-struct ExchangeRates {
+struct ExchangeRates: Encodable, Decodable {
     let timestamp: Int
     let source: String
     let quotes: [String: Double]

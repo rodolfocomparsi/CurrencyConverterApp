@@ -19,23 +19,22 @@ class CurrenciesListInteractor: CurrenciesListBusinessLogic, CurrenciesListDataS
     var allCurrencies: [Currency]?
     
     func fetchCurrencies(request: CurrenciesList.FetchCurrencies.Request) {
+        if let cached = CacheManager.shared.loadCurrencies() {
+            let response = CurrenciesList.FetchCurrencies.Response(currencies: cached, error: nil)
+            presenter?.presentCurrencies(response: response)
+        }
+        
         worker.fetchSupportedCurrencies { result in
             switch result {
             case .success(let currencies):
-                self.allCurrencies = currencies
-                
-                let response = CurrenciesList.FetchCurrencies.Response(
-                    currencies: currencies,
-                    error: nil
-                )
+                CacheManager.shared.saveCurrencies(currencies)
+                let response = CurrenciesList.FetchCurrencies.Response(currencies: currencies, error: nil)
                 self.presenter?.presentCurrencies(response: response)
-                
             case .failure(let error):
-                let response = CurrenciesList.FetchCurrencies.Response(
-                    currencies: [],
-                    error: error
-                )
-                self.presenter?.presentCurrencies(response: response)
+                if CacheManager.shared.loadCurrencies() == nil {
+                    let response = CurrenciesList.FetchCurrencies.Response(currencies: [], error: error)
+                    self.presenter?.presentCurrencies(response: response)
+                }
             }
         }
     }
