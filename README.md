@@ -13,6 +13,7 @@ Consumo da API **CurrencyLayer**
 ## Funcionalidades Implementadas
 
 **Obrigatórias**
+
 - [x] Duas telas separadas (conversão + listagem)
 - [x] Consumo das endpoints `/list` e `/live` 
 - [x] Conversão para qualquer par de moedas
