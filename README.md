@@ -49,7 +49,9 @@ Insira sua API Key da CurrencyLayer em Sources/Config/APIKeys.swift (arquivo ign
 ## API Key
 Crie o arquivo Sources/Config/APIKeys.swift:
 
-Swiftstruct APIKeys {
+import Foundation
+
+struct APIKeys {
     static let currencyLayer = "SUA_CHAVE_AQUI"
 }
 
